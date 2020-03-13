@@ -411,7 +411,7 @@ bool crossover(const Data & data, TestFi & Oracle, Bundle * s, const std::vector
 void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vector<double>& h1, std::vector<double>& dual, const std::deque<int>& bestnon0, const std::deque<int>& basenon0, std::deque<int>& non0, double & best, double ratio){
     
     int retval;
-    int cont;
+    int cont, it;
     int arc, nnfix;
     int size =bestnon0.size();
     int chngble = size*ratio;
@@ -429,14 +429,16 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
     //Randomly choose arcs to be closed in the best solution.
     // std::cout<<"best size: "<<bestnon0.size()<<" close "<<chngble<<std::endl;
     cont=0;
-    while(cont<chngble){
+    it =0;
+    while(cont<chngble && it<100){
         arc = rand()%size;
+        ++it;
         double r = rand()%101/100.0;
-        //std::cout<<"arc: "<<bestnon0[arc]<<" "<<ya1[bestnon0[arc]]<<" h1: "<<h1[bestnon0[arc]]<<std::endl;
         if(ya1[bestnon0[arc]] && r>=h1[bestnon0[arc]]){
             ya1[bestnon0[arc]] = false;
             out.push_front(bestnon0[arc]);
             ++cont;
+            it=0;
             //std::cout<<"close: "<<bestnon0[arc]<<" h1: "<<h1[bestnon0[arc]]<<std::endl;
         }
     }

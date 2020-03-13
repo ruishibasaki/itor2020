@@ -149,18 +149,19 @@ int main(int argc, char* argv[]) {
     volp.maxlb = bestfeas*100; 
     double best=bestfeas;
     for(int i=0;i<10;++i){
-        //std::cout<<"DISTURB"<<std::endl;
+        std::cout<<"DISTURB"<<std::endl;
         double best = 1e30;
 	times(&buff);
 	t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
 	if(t>86400)break;
         for(int it=2;it<=10;it+=2){
-            //std::cout<<"RATIO "<<it<<"%"<<std::endl;
+            std::cout<<"RATIO "<<it<<"%"<<std::endl;
             double besti = 1e30;
             for(int itt=0;itt<5;itt++){
+                std::cout<<" "<<itt<<std::endl;
                 disturb_best(data, volmcnd, volp, h1, dual, bstfeasnon0, basenon0, non0, UB, it/100.0);
                 if(UB < besti){
-                    //std::cout<<"distrub 0.05: "<<UB<<std::endl;
+                    std::cout<<"distrub 0.05: "<<UB<<std::endl;
                     besti = UB;
                     bestinon0 = non0;
                 }
@@ -199,17 +200,23 @@ int main(int argc, char* argv[]) {
     //________________________________________________
     //________________________________________________
     //_____________ END ____________________________
-
-       /*std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
-    for (int a = bstfeasnon0.size(); a--; ){
-        arc = bstfeasnon0[a];
-        std::cout<<"final: "<<arc<<" h1: "<<h1[arc]<<std::endl;
+    
+    std::string inst(instance);
+    while(inst.find("/")!=std::string::npos){
+        inst = inst.substr(inst.find("/")+1);
     }
-    std::cout<<"END FIRST FEAS size: "<<bstfeasnon0.size()<<std::endl;*/
-
-
+    std::ofstream filesol;
+    filesol.open("sol"+inst, std::ios::app);
+    std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
+    filesol<<" size: "<<bstfeasnon0.size()<<std::endl;
+    for (int a = bstfeasnon0.size(); a--; ){
+        filesol<<"openarc: "<<bstfeasnon0[a]<<std::endl;
+    }
+    filesol.close();
+    
     
     file.close();
+    
     dual.clear();
     h1.clear();
     h.clear();
@@ -343,6 +350,7 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
     
     int retval;
     int cont;
+    int it;
     int arc, nnfix;
     int size =bestnon0.size();
     int chngble = size*ratio;
@@ -360,13 +368,17 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
     //Randomly choose arcs to be closed in the best solution.
    // std::cout<<"best size: "<<bestnon0.size()<<" close "<<chngble<<std::endl;
     cont=0;
-    while(cont<chngble){
+    it=0;
+    while(cont<chngble && it<100){
         arc = rand()%size;
+        //std::cout<<"connt "<<cont<<" "<<chngble<<std::endl;
+        ++it;
         double r = (rand()%101)/100.0;
         if(ya1[bestnon0[arc]] && r>=h1[bestnon0[arc]]){
             ya1[bestnon0[arc]] = false;
             out.push_front(bestnon0[arc]);
             ++cont;
+            it=0;
             //std::cout<<"close: "<<bestnon0[arc]<<" h1: "<<h1[bestnon0[arc]]<<std::endl;
         }
     }
@@ -434,7 +446,7 @@ double feasible_solve(const std::vector<double>& h1, std::deque<int>& firstnon0,
         if(retval == 1) return UB;
         else return -1;
     }else if(phase==1){
-        //std::cout<<"check feas"<<std::endl;
+        std::cout<<"check feas"<<std::endl;
         sol0.set_data(firstnon0, &data);
         sol0.create_model(1);
         retval = sol0.solve(UB,firstnon0, h1,x1,1);

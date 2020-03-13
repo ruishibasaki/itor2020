@@ -31,21 +31,21 @@ clean::
 # *H   is the list of all include files
 # *INC is the -I<include directories>
 
-#SYSTEM = x86-64_osx
-#LIBFORMAT = static_pic
-#CONCERTDIR = /Applications/CPLEX_Studio128/concert
-#CPLEXDIR = 	/Applications/CPLEX_Studio128/cplex
-#CPLEXLIBDIR = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-#CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-#CPLEXFLAGS =   -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -ldl -lpthread
-
-SYSTEM = x86-64_linux
+SYSTEM = x86-64_osx
 LIBFORMAT = static_pic
-CONCERTDIR = /opt/ibm128/ILOG/CPLEX_Studio128/concert
-CPLEXDIR = 	/opt/ibm128/ILOG/CPLEX_Studio128/cplex
+CONCERTDIR = /Applications/CPLEX_Studio128/concert
+CPLEXDIR = 	/Applications/CPLEX_Studio128/cplex
 CPLEXLIBDIR = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
 CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
 CPLEXFLAGS =   -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -ldl -lpthread
+
+#SYSTEM = x86-64_linux
+#LIBFORMAT = static_pic
+#CONCERTDIR = /opt/ibm/ILOG/CPLEX_Studio128/concert
+#CPLEXDIR = 	/opt/ibm/ILOG/CPLEX_Studio128/cplex
+#CPLEXLIBDIR = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
+#CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
+#CPLEXFLAGS =   -L$(CPLEXLIBDIR) -lilocplex -lcplex -L$(CONCERTLIBDIR) -lconcert -lm -ldl -lpthread
 
 VOLIB = 
 VOLOBJ = $(VOLDIR)VolVolume.o
