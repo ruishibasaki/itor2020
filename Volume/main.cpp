@@ -149,19 +149,19 @@ int main(int argc, char* argv[]) {
     volp.maxlb = bestfeas*100; 
     double best=bestfeas;
     for(int i=0;i<10;++i){
-        std::cout<<"DISTURB"<<std::endl;
+        //std::cout<<"DISTURB"<<std::endl;
         double best = 1e30;
 	times(&buff);
 	t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
 	if(t>86400)break;
         for(int it=2;it<=10;it+=2){
-            std::cout<<"RATIO "<<it<<"%"<<std::endl;
+            //std::cout<<"RATIO "<<it<<"%"<<std::endl;
             double besti = 1e30;
             for(int itt=0;itt<5;itt++){
-                std::cout<<" "<<itt<<std::endl;
+                //std::cout<<" "<<itt<<std::endl;
                 disturb_best(data, volmcnd, volp, h1, dual, bstfeasnon0, basenon0, non0, UB, it/100.0);
                 if(UB < besti){
-                    std::cout<<"distrub 0.05: "<<UB<<std::endl;
+                    //std::cout<<"distrub 0.05: "<<UB<<std::endl;
                     besti = UB;
                     bestinon0 = non0;
                 }
@@ -201,10 +201,7 @@ int main(int argc, char* argv[]) {
     //________________________________________________
     //_____________ END ____________________________
     
-    std::string inst(instance);
-    while(inst.find("/")!=std::string::npos){
-        inst = inst.substr(inst.find("/")+1);
-    }
+    std::string inst = (instance.substr(instance.size()-13,1)+instance.substr(instance.size()-11,7));
     std::ofstream filesol;
     filesol.open("sol"+inst, std::ios::app);
     std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
@@ -446,7 +443,7 @@ double feasible_solve(const std::vector<double>& h1, std::deque<int>& firstnon0,
         if(retval == 1) return UB;
         else return -1;
     }else if(phase==1){
-        std::cout<<"check feas"<<std::endl;
+        //std::cout<<"check feas"<<std::endl;
         sol0.set_data(firstnon0, &data);
         sol0.create_model(1);
         retval = sol0.solve(UB,firstnon0, h1,x1,1);
