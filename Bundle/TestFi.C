@@ -1,39 +1,3 @@
-/*--------------------------------------------------------------------------*/
-/*-------------------------- File TestFi.C ---------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--                							  --*/
-/*-- TestFi is a simple example of a "concrete" class which implements    --*/
-/*-- the interface defined by the abstract base class FiOracle.           --*/
-/*--                							  --*/
-/*--                            VERSION 0.20                              --*/
-/*--                           20 - 02 - 2013                             --*/
-/*--                			     				  --*/
-/*-- 		     Original Idea and Implementation by:		  --*/
-/*--                							  --*/
-/*--			       Antonio Frangioni       			  --*/
-/*--                							  --*/
-/*--   			   Operations Research Group			  --*/
-/*--			  Dipartimento di Informatica			  --*/
-/*--   			     Universita' di Pisa			  --*/
-/*--                                                                      --*/
-/*--               Copyright 2001 - 2013 by Antonio Frangioni   
-
-                        KNAPSACK  MULTICOMMODITY                            --*/
-/*--                							  --*/  
-/*--------------------------------------------------------------------------*/ 
-/*--------------------------------------------------------------------------*/
-/*--------------------------- IMPLEMENTATION -------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------*/
-/*---------------------------- MACROS --------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------*/
-/*--------------------------- INCLUDES -------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
 #include "TestFi.h"
 
 /*--------------------------------------------------------------------------*/
@@ -120,7 +84,6 @@ TestFi::knapsack(int a,  const std::vector<double> & rc, std::vector<double> & x
 	double kpsack =0;
 	double fillUp =0;
 	int arc = non0.at(a);
-	//get reduced cost for each commodity in arc e
 	for(int k=0;k<ndemands;++k){
 		if(rc[k*sznon0 + a]>=0.0){
 			heap.push_back(HeapCell(k,rc[k*sznon0 + a]));
@@ -128,10 +91,6 @@ TestFi::knapsack(int a,  const std::vector<double> & rc, std::vector<double> & x
 	}  
 	
 	heap.sort(comp());
-	//std::stable_sort(heap.begin(), heap.end(), comp());
-		
-	//solve knap
-	
 	while(heap.size()>0){
 		
 		if(fillUp < data->arcs[arc].capa){
@@ -177,7 +136,7 @@ HpNum TestFi::solve (){
 		cost_a = knapsack(a, rc, x)- data->arcs[arc].f;
 		if( cost_a  >= 0.0){
             ++h1[arc];
-			y[a] =1.0;	//calcul of y_ij
+			y[a] =1.0;
 			lcost += cost_a;
 			
 		}else{
@@ -198,11 +157,9 @@ HpNum TestFi::solve (){
 
 	}
 	
-	//calcul of v
 	for(int k=0; k<ndemands; ++k){
 		lcost -= data->d_k[k].quantity * ( Lam1[Iu[k*nnodes + data->d_k[k].D-1]] - Lam1[Iu[k*nnodes + data->d_k[k].O-1]]);
 	}
-	//std::cout<<"solve knap "<<lcost<<std::endl;
 	return lcost;
 	
 }
@@ -232,7 +189,6 @@ bool TestFi::NewGi( cIndex wFi )
 {
 	
     if( wFi && Lam1 ){
-		//cout<<"lam1 "<<*Lam1<<endl;
         return( true );
     }   
     else
@@ -260,9 +216,6 @@ Index TestFi::GetGi( SgRow SubG , cIndex_Set &SGBse , cIndex Name ,
     
     SGBse = 0;
    
-    
-    
-    //calcul of v
     int arc;
 	for(int k=0; k<ndemands; ++k){
 		for(int i=0; i<nnodes; ++i)		
@@ -337,7 +290,6 @@ void TestFi::formfinalsol(){
 	
 	y.assign(y.size(),0.0); 
 	x.assign(x.size(),0.0); 
-	//x.assign(x.size(),0.0); 
     cIndex_Set I;
     Index D; 
     Lam1 = Slvr->ReadBestSol(I,D);
@@ -350,12 +302,10 @@ void TestFi::formfinalsol(){
 				y[a] += memy[I[i]][a] * Mlt[i];
 				for(int k=0;k<ndemands;++k)
 					x[k*sznon0 + a] += memx[I[i]][k*sznon0 + a] * Mlt[i];
-				//std::cout<<"a: "<<a+1<<" "<< memy[I[i]][a]<<" * "<< Mlt[i]<<" = "<< y[a]<<std::endl;
 			}
 			for(int a=szunfxd; a<sznon0;++a){
 				for(int k=0;k<ndemands;++k)
 					x[k*sznon0 + a] += memx[I[i]][k*sznon0 + a] * Mlt[i];
-				//std::cout<<"a: "<<a+1<<" "<< memy[I[i]][a]<<" * "<< Mlt[i]<<" = "<< y[a]<<std::endl;
 			}
 		}
 	}else{
@@ -368,7 +318,6 @@ void TestFi::formfinalsol(){
 			for(int a=szunfxd; a<sznon0;++a){
 				for(int k=0;k<ndemands;++k)
 					x[k*sznon0 + a] += memx[I[i]][k*sznon0 + a] * Mlt[i];
-				//std::cout<<"a: "<<a+1<<" "<< memy[I[i]][a]<<" * "<< Mlt[i]<<" = "<< y[a]<<std::endl;
 			}
 		}
 	}
@@ -437,7 +386,6 @@ TestFi::reset( int unfixd, const std::vector<double> & hs, bool hotstart){
     x.assign(xsize,0);
     rc.assign(xsize,0);
     h1.assign(narcs,0);
-    //std::cout<<NumVar<<" : "<<y.size()<<std::endl;
     LMRow lambda0 = new LMNum[NumVar];
     if(hotstart){
         for(int k=0; k<ndemands; ++k)
@@ -501,13 +449,10 @@ TestFi::re_rand_fix(const std::vector<int> & ya2, const std::vector<int> & ya1, 
         }else set+="0";
         
     }
-    //std::cout<<"set: "<<set<<std::endl;
     
     for(int a=hist.size();a--;){
-        //std::cout<<"h: "<<hist[a]<<std::endl;
         if(set==hist[a]){
             equal = true;
-            //std::cout<<"equal"<<std::endl;
             break;
         }
     }
@@ -521,10 +466,8 @@ TestFi::re_rand_fix(const std::vector<int> & ya2, const std::vector<int> & ya1, 
                 non0.push_front(a);
                 set2+="1";
             }else if(ya2[a] || ya1[a]){
-                //r = (double) ( rand()%101 )/100.0;
                 rr = ( rand()%2 );
                 if(rr && !(int(set[a])-48) ){
-                    //std::cout<<(int(set[a])-48)<<std::endl;
                     fixc+=data->arcs[a].f;
                     non0.push_front(a);
                     set2+="1";
@@ -574,25 +517,18 @@ TestFi::deque_concat(const std::deque<int> & out,const std::deque<int> & from){
     std::vector<int>y(narcs,0);
     for(int n=non0.size();n--;){
         y[non0[n]] = 1;
-        // std::cout<<"fix "<<to[n]<<std::endl;
     }
     for(int n=out.size();n--;){
         y[out[n]] = -1;
-        // std::cout<<"out "<<out[n]<<std::endl;
     }
     
     int added = 0;
     for(int n=from.size();n--;){
         if(y[from[n]]==0){
             non0.push_front(from[n]);
-            //std::cout<<"fix "<<from[n]<<std::endl;
             ++added;
         }
     }
-    // std::cout<<"after concat"<<std::endl;
-    //for(int n=non0.size();n--;){
-    //  std::cout<<"fix "<<non0[n]<<std::endl;
-    //}
     
     y.clear();
     return added;

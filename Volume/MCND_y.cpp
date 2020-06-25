@@ -44,7 +44,6 @@ FlowY::set_data(const std::deque<int>& non0, const Data * d){
 	for(int a=0;a<sznz;++a){
 		arc = non0[a];
 		yint[arc] = 1;
-		//std::cout<<" arc: "<<arc<<std::endl;
 	}
 	
 	idf_row.assign(nnodes*ndemands,-1);
@@ -79,24 +78,21 @@ void FlowY::create_model(int phase) {
     if(phase==1){
         for(int a=0;a<narcs;++a){
             if(yint[a]){
-                //std::cout<<"arc: "<<arc<<std::endl;
                 for (int k = 0; k < ndemands; ++k){
                     x.add(IloNumVar(*env));
                     idx[k*narcs+a]= nx++;
                 }
                 
             }
-            //std::cout<<a<<" "<<idy[a]<<std::endl;
         }
     }
 	
-	//addicional FlowYibility vars
 	model = new IloModel(*env);
     Obj = IloMinimize(*env, obj);
 	model->add(Obj);
 	obj.end();
-	 	//constraints
-	nfr=0; ncr=0;
+
+    nfr=0; ncr=0;
 	bool flag=false;
 	flow_row =IloRangeArray(*env);
 	for (int k = 0; k < ndemands; ++k) {
@@ -104,11 +100,7 @@ void FlowY::create_model(int phase) {
 			
 		    flag=false;
 			IloExpr constraint(*env);
-			
-            
-
             for(int a=0;a<narcs;++a){
-                //std::cout<<"what "<<a<<" "<<yint[a]<<" "<<idx[k*narcs+a]<<std::endl;
                 if(yint[a]==0) continue;
                 
                 if(i == data->arcs[a].i){
@@ -118,13 +110,8 @@ void FlowY::create_model(int phase) {
                      flag=true;
                      if(idx[k*narcs+a]>=0)constraint += x[idx[k*narcs+a]];
                 }
-                
-               
             }
-            
-           // std::cout<<"what1 "<<std::endl;
-
-			
+        
 			if( i == data->d_k[k].D){
 				flag=true;
 				constraint += x[k];
@@ -167,9 +154,7 @@ void FlowY::create_model(int phase) {
 
 
 int FlowY::solve(double &solution, std::deque<int>& non0, const std::vector<double> & y1, std::vector<double> & x1, int phase){
-	
-	//cplex->setParam(IloCplex::RootAlg, 2);
-	//cplex->exportModel("test.lp");
+
 	cplex->solve();
     if(phase==2){
         IloNumArray x_(*env);
@@ -183,8 +168,6 @@ int FlowY::solve(double &solution, std::deque<int>& non0, const std::vector<doub
         while(price(cols_to_add, pi_, alpha_)){
             add_cols(cols_to_add);
             cplex->solve();
-            //std::cout<<"after price "<<cplex->getObjValue()<<std::endl;
-            
             cplex->getDuals(pi_,flow_row);
             cplex->getDuals(alpha_,capa_row);
         }
@@ -193,8 +176,7 @@ int FlowY::solve(double &solution, std::deque<int>& non0, const std::vector<doub
         alpha_.end();
 
     }
-	//std::cout<<"TEST final "<<cplex->getStatus()<<std::endl;
-	if(cplex->getStatus() == IloAlgorithm::Infeasible){	
+	if(cplex->getStatus() == IloAlgorithm::Infeasible){
 		 std::cout<<"infeasible "<<std::endl;
 		return 2;
 	}else if(cplex->getStatus() == IloAlgorithm::Unbounded){
@@ -220,7 +202,6 @@ int FlowY::solve(double &solution, std::deque<int>& non0, const std::vector<doub
         else if(phase==2){
             for (int k = 0; k < ndemands; ++k) if(xsol[k]>1e-30) return 2;
         }
-        //std::cout<<"no put"<<std::endl;
         non0.clear();
         bool used;
         for (int a=0; a<narcs; ++a){
@@ -237,18 +218,15 @@ int FlowY::solve(double &solution, std::deque<int>& non0, const std::vector<doub
                 if(used){
                     solution+=data->arcs[a].f;
                     non0.push_back(a);
-                }//else   std::cout<<"unsed "<<a<<" "<<y1[a]<<std::endl;
+                }
             }else for (int k=0; k<ndemands; ++k) x1[k*narcs+a] = 0;
         }
         std::cout<<std::setprecision(10)<<"Solution: "<<solution<<std::endl;
         return 1;
         
 	}else{
-		//std::cout<<"what "<<std::endl;
 		 return 2;
 	}
-   // std::cout<<"N/A "<<std::endl;
-
     return 3;
 }
 
@@ -263,15 +241,12 @@ FlowY::price(std::deque<HeapCell>& cols_to_add, const IloNumArray & pi_,const Il
         i = data->arcs[a].i-1;
         j = data->arcs[a].j-1;
         totalrc=0;
-        //std::cout<<" arc: "<<arc<<std::endl;
         for (int k = 0; k < ndemands; ++k){
             if(idx[k*narcs+a]<0){
-                 //std::cout<<"what: "<<idf_row[k*nnodes+i]<<" "<<idf_row[k*nnodes+j]<<" "<<idc_row[a]<<std::endl;
-                rc = data->arcs[a].c[k] /*+ data->arcs[a].f/data->arcs[a].capa*/ + alpha_[idc_row[a]];
+                rc = data->arcs[a].c[k] + alpha_[idc_row[a]];
                 rc += pi_[idf_row[k*nnodes+i]]- pi_[idf_row[k*nnodes+j]];
                 if(rc<-1e-10){
                     cols_to_add.push_back(HeapCell(k*narcs+a,rc));
-                    //std::cout<<"add col k: "<<k<<" id: "<<cols_to_add.back()<<std::endl;
                 }
             }
         }
@@ -283,27 +258,21 @@ FlowY::price(std::deque<HeapCell>& cols_to_add, const IloNumArray & pi_,const Il
 void
 FlowY::add_cols(std::deque<HeapCell>& cols_to_add){
     int k,a,i,j, cont;
-    //std::stable_sort(cols_to_add.begin(),cols_to_add.end(),comp());
-    //std::cout<<"num cols to add: "<<cols_to_add.size()<<std::endl;
     cont=0;
     for(int c=cols_to_add.size();c--;){
         k = cols_to_add[c].k/narcs;
         a = cols_to_add[c].k%narcs;
         i = data->arcs[a].i-1;
         j = data->arcs[a].j-1;
-        //std::cout<<"add col k: "<<k<<" arc: "<<a<<" id: "<<cols_to_add[c].rc_<<std::endl;
         IloNumColumn col =capa_row[idc_row[a]](-1);
         col+=flow_row[idf_row[k*nnodes+i]](-1);
         col+=flow_row[idf_row[k*nnodes+j]](1);
-        col+= Obj(data->arcs[a].c[k] /*+ data->arcs[a].f/data->arcs[a].capa*/);
+        col+= Obj(data->arcs[a].c[k]);
         
         x.add(IloNumVar(col));
         idx[cols_to_add[c].k]= nx++;
         col.end();
-        //if(++cont>=10)
-        //break;
     }
-    //std::cout<<"added: "<<cont<<std::endl;
     cols_to_add.clear();
 }
 

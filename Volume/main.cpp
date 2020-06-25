@@ -2,7 +2,7 @@
 #include "mcnd.hpp"
 #include "MCND_y.hpp"
 #include <sys/times.h>
-#include <algorithm>    // std::sort
+#include <algorithm>    
 #include "UtilsMethods.hpp"
 #include "structures.hpp"
 
@@ -74,12 +74,6 @@ int main(int argc, char* argv[]) {
     //----------------get Solution of First solve
     volmcnd.transp_h(h1, double(volp.iter()));
     volmcnd.trans_dualsol(dual, volp.dsol);
-    //volmcnd.trans_sol(y1,volp.psol);
-    //volmcnd.trans_sol(rel1,volp.psol);
-    //for(int i=data.nnodes*data.ndemands;i--;) dual[i] = volp.dsol[i]; //get solution
-    //for(int i=data.narcs;i--;) std::cout<<i<<" "<<volp.psol[i]<<std::endl;
-	//std::cout<<std::setprecision(15)<<volp.value<<std::endl;
-   // volp.parm.maxsgriters = 100;
 
    
     //________________________________________________
@@ -93,22 +87,13 @@ int main(int argc, char* argv[]) {
         else if(h1[arc]>=0.001){
             non0.push_front(arc);
             ++nnfxdarc;
-        }//else std::cout<<"A: "<<arc<<" h1: "<<h1[arc]<<std::endl;
+        }
     }
 
     reopt(data, volmcnd,volp, h1,dual, non0, nnfxdarc, 0.3);
     basenon0 = volmcnd.non0;
-    //std::cout<<"base size: "<<basenon0.size()<<std::endl;
-   
-    
-    /*std::sort(basenon0.begin(), basenon0.end());
-     for (int a = basenon0.size(); a--; ){
-     arc = basenon0[a];
-     std::cout<<"base: "<<arc<<" h1: "<<h1[arc]<<std::endl;
-     }
-     std::cout<<"base size: "<<basenon0.size()<<std::endl;*/
-    
-    
+ 
+
     //________________________________________________
     //________________________________________________
     //_____________FIRST FEAS SOL
@@ -120,8 +105,7 @@ int main(int argc, char* argv[]) {
         arc = basenon0[a];
         if(h1[arc]>=0.3){
             non0.push_back(arc);
-            //std::cout<<"Fst: "<<arc<<" h1: "<<h1[arc]<<std::endl;
-        }
+         }
     }
     
     UB = feasible_solve(h1, non0, data, xbest);
@@ -133,12 +117,7 @@ int main(int argc, char* argv[]) {
     t = ( double( buff.tms_utime - t_u ) ) /double( CLK_TCK );
     file<<bestfeas<<" t: "<<t<<" ";
     
-    /*std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
-    for (int a = bstfeasnon0.size(); a--; ){
-        arc = bstfeasnon0[a];
-        std::cout<<"final: "<<arc<<" h1: "<<h1[arc]<<std::endl;
-    }
-    std::cout<<"END FIRST FEAS size: "<<bstfeasnon0.size()<<std::endl;*/
+    
     //________________________________________________
     //________________________________________________
     //_____________PHASE 2 ELIMINATION EVALUATION
@@ -151,30 +130,26 @@ int main(int argc, char* argv[]) {
     for(int i=0;i<10;++i){
         //std::cout<<"DISTURB"<<std::endl;
         double best = 1e30;
-	times(&buff);
-	t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
-	if(t>86400)break;
+        times(&buff);
+        t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
+        if(t>86400)break;
         for(int it=2;it<=10;it+=2){
-            //std::cout<<"RATIO "<<it<<"%"<<std::endl;
             double besti = 1e30;
             for(int itt=0;itt<5;itt++){
-                //std::cout<<" "<<itt<<std::endl;
                 disturb_best(data, volmcnd, volp, h1, dual, bstfeasnon0, basenon0, non0, UB, it/100.0);
                 if(UB < besti){
-                    //std::cout<<"distrub 0.05: "<<UB<<std::endl;
                     besti = UB;
                     bestinon0 = non0;
                 }
             }
-            //std::cout<<"BEST : "<<besti<<std::endl;
             if(besti<best){ bestnon0 = bestinon0;  best =besti;}
             if(!bestinon0.empty())candidates.push_back(bestinon0);
             bestinon0.clear();
         }
         //std::cout<<"CROSS inside "<<i<<std::endl;
-	times(&buff);
-	t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
-	if(t>86400)break;        
+        times(&buff);
+        t = (double(buff.tms_utime - t_u) )/double(CLK_TCK);
+        if(t>86400)break;
         crossover(data,volmcnd, volp, h1,dual, candidates, bestnon0, best, 3);
         if(!bestnon0.empty()){
             if(best < bestfeas){
@@ -188,9 +163,9 @@ int main(int argc, char* argv[]) {
         for(int s=candidates.size();s--;)
             candidates[s].clear();
         candidates.clear();
-   	times(&buff);
-	t = (double(buff.tms_utime - t_u) ) /double(CLK_TCK);
-	if(t>86400)break;
+        times(&buff);
+        t = (double(buff.tms_utime - t_u) ) /double(CLK_TCK);
+        if(t>86400)break;
     }
     
     times( &buff );
@@ -243,15 +218,12 @@ void reopt(const Data & data, MCND & volmcnd, VOL_problem & volp, std::vector<do
     bool mod = true;
     double f1 = 1/double(volp.iter());
     
-    //std::cout<<"1 iter: "<<double(volp.iter())<<" f1: "<<f1<<std::endl;
-    volmcnd.non0 = non0;
+     volmcnd.non0 = non0;
     volmcnd.reset(volp, nnfxdarc, dual,0);
     volp.solve(volmcnd, 1);
     volmcnd.transp_h(h1, double(volp.iter()),nnfxdarc);
     
     f1 = 0.01;
-    //std::cout<<"2 iter: "<<double(volp.iter())<<" f1: "<<f1<<" unfix: "<<nnfxdarc<<" fixed: "<<volmcnd.non0.size()-nnfxdarc<<std::endl;
-   // std::cout<<"REOPT:"<<std::endl;
     while(f1 <= 0.05){
         mod = false;
         nnfxdarc=0;
@@ -259,29 +231,23 @@ void reopt(const Data & data, MCND & volmcnd, VOL_problem & volp, std::vector<do
         for(int a = volmcnd.szunfxd; a--; ){
             int arc = volmcnd.non0[a];
             if(h1[arc]>=f2){
-                //std::cout<<"A1: "<<arc<<" h: "<<h1[arc]<<std::endl;
                 non0.push_back(arc);
                 mod = true;
             }
             else if(h1[arc]>=f1){
-                //std::cout<<"A0: "<<arc<<std::endl;
                 non0.push_front(arc);
                 ++nnfxdarc;
             }else{
-                //std::cout<<"Ot: "<<arc<<std::endl;
                 mod = true;
             }
-            //std::cout<<"Phi: "<<arc<<" h1: "<<h1[arc]<<std::endl;
         }
         if(mod==false){
             f1 +=0.01;
-            //std::cout<<"f1: "<<f1<<std::endl;
         }else{
             volmcnd.insert_in_place(non0, volmcnd.szunfxd);
             volmcnd.reset(volp, nnfxdarc, dual,0);
             volp.solve(volmcnd, 1);
             volmcnd.transp_h(h1, double(volp.iter()), nnfxdarc);
-            //std::cout<<"n iter: "<<double(volp.iter())<<" unfix: "<<nnfxdarc<<" fixed: "<<volmcnd.non0.size()-nnfxdarc<<std::endl;
         }
     }
     non0.clear();
@@ -298,7 +264,7 @@ bool crossover(const Data & data, MCND & volmcnd, VOL_problem & volp, const std:
     std::deque<std::string> hist;
     volp.parm.maxsgriters = 250;
     int sz = cand.size();
-    //makestd::cout<<"size cnad: "<<sz<<std::endl;
+
     double UB;
     int retval;
     bool to_better = false;
@@ -311,23 +277,18 @@ bool crossover(const Data & data, MCND & volmcnd, VOL_problem & volp, const std:
             transp(cand[pp],ya1);
             int t=0;
             int delta = diff<int>(ya1,ya2);
-            //std::cout<<p<<" to "<<pp<<" diff: "<<delta<<std::endl;
             while(t < pow(2,delta) && t < (itmax)){
                 
                 volmcnd.re_rand_fix(ya1, ya2, h1, hist);
                 volmcnd.reset(volp, 0, dual, 1);
                 retval = volp.solve(volmcnd, 1);
                 UB = volp.value;
-                //std::cout<<"cross ub: "<<UB<<std::endl;
                 if(UB<best && (retval>=0)){
-                    //std::cout<<"cross ub: "<<UB<<std::endl;
                     best = UB;
                     non0=volmcnd.non0;
                     to_better=true;
                 }
                 ++t;
-                //std::cout<<p<<" "<<pp<<" itbest "<<itbest<<" t: "<<t<<std::endl;
-                
             }
             ya1.assign(data.narcs,0);
         }
@@ -363,12 +324,10 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
     }
     
     //Randomly choose arcs to be closed in the best solution.
-   // std::cout<<"best size: "<<bestnon0.size()<<" close "<<chngble<<std::endl;
     cont=0;
     it=0;
     while(cont<chngble && it<100){
         arc = rand()%size;
-        //std::cout<<"connt "<<cont<<" "<<chngble<<std::endl;
         ++it;
         double r = (rand()%101)/100.0;
         if(ya1[bestnon0[arc]] && r>=h1[bestnon0[arc]]){
@@ -376,7 +335,6 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
             out.push_front(bestnon0[arc]);
             ++cont;
             it=0;
-            //std::cout<<"close: "<<bestnon0[arc]<<" h1: "<<h1[bestnon0[arc]]<<std::endl;
         }
     }
     volmcnd.non0.clear();
@@ -385,7 +343,6 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
     
     
     //Put the unfixed arcs from the base (do not consider the previously closed ones).
-    //std::cout<<"best size: "<<volmcnd.non0.size()<<std::endl;
     volp.parm.maxsgriters = 100;
     nnfix= volmcnd.deque_concat(out, basenon0);
     volmcnd.reset(volp, nnfix, dual, 1);
@@ -395,7 +352,6 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
         arc = volmcnd.non0[a];
         if(h[arc]>=0.3){
             heap.push_back(HeapCell(arc,h[arc]));
-            //std::cout<<"disturbd: "<<arc<<" h1: "<<h1[arc]<<std::endl;
         }
     }
     
@@ -407,7 +363,6 @@ void disturb_best(const Data & data, MCND & volmcnd, VOL_problem & volp, const s
         arc = heap.front().k;
         volmcnd.non0.push_front(arc);
         ++cont;
-       // std::cout<<"add: "<<arc<<" rc "<<heap.front().rc_<<std::endl;
         heap.pop_front();
     }
     
@@ -443,14 +398,12 @@ double feasible_solve(const std::vector<double>& h1, std::deque<int>& firstnon0,
         if(retval == 1) return UB;
         else return -1;
     }else if(phase==1){
-        //std::cout<<"check feas"<<std::endl;
         sol0.set_data(firstnon0, &data);
         sol0.create_model(1);
         retval = sol0.solve(UB,firstnon0, h1,x1,1);
         sol0.clear_model();
         
         if(retval==0){
-           // std::cout<<"optmisin"<<std::endl;
             sol0.set_data(firstnon0, &data);
             sol0.create_model(2);
             retval = sol0.solve(UB,firstnon0, h1,x1,2);

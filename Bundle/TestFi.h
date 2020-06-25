@@ -1,40 +1,3 @@
-/*--------------------------------------------------------------------------*/
-/*---------------------------- File TestFi.h -------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--                                                                      --*/
-/*-- TestFi is a simple example of a "concrete" class which implements    --*/
-/*-- the interface defined by the abstract base class FiOracle.           --*/
-/*--                                                                      --*/
-/*-- The function implemented by TestFi is the (convex, differentiable)   --*/
-/*-- quadratic function                                                   --*/
-/*--                                                                      --*/
-/*--   Fi( Lambda ) = 1/2 \sum{i} || Lambda[ i ] - L0 ||_2^2 + 1          --*/
-/*--                                                                      --*/
-/*-- with (unique sub)gradient    pathh 2 multicommodity cplex              --*/
-/*--                                                                      --*/
-/*--   Gi( Lambda )[ i ] = Lambda[ i ] - L0.                              --*/
-/*--                                                                      --*/
-/*--                            VERSION 0.40                              --*/
-/*--                           20 - 02 - 2013                             --*/
-/*--                                                                      --*/
-/*--                  Original Idea and Implementation by:                --*/
-/*--                                                                      --*/
-/*--                          Antonio Frangioni                           --*/
-/*--                                                                      --*/
-/*--                       Operations Research Group                      --*/
-/*--                      Dipartimento di Informatica                     --*/
-/*--                          Universita' di Pisa                         --*/
-/*--                                                                      --*/
-/*--               Copyright 2001 - 2013 by Antonio Frangioni   
-
-                            KNAPSACK  MULTICOMMODITY                     --*/
-/*--                                                                      --*/
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*----------------------------- DEFINITIONS --------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
 #ifndef _TestFi
 #define _TestFi  /* self-identification: #endif at the end of the file */
 
@@ -162,11 +125,7 @@ namespace NDO_di_unipi_it
 		{
 			return( true );
 		}
-		/*
-		Index GetNrFi( void ) const
-		{
-			return( narcs );
-		}*/
+		
         
         /*--------------------------------------------------------------------------*/
         /*----------------------- METHODS FOR CHANGING DATA ------------------------*/

@@ -48,7 +48,6 @@ public:
   std::deque<int> non0;
   std::vector<int> h1;
   
-  //double bestlb;
   std::list<HeapCell> heap;  
   std::vector<int> Iu; //index of lag multipliers
   
@@ -58,8 +57,7 @@ public:
 	 Iu.clear();
 	 non0.clear();
 	 heap.clear();
-	 //yl.clear();
-  }   
+  }
 };
 
 

@@ -17,15 +17,12 @@ public:
 	IloModel* model;
     IloObjective Obj;
 
-	// variaveis
 	IloNumVarArray x;
 
 	std::vector<int> idx;
 	int nx;
 	
-	
-	//contraints
-	IloRangeArray flow_row;
+    IloRangeArray flow_row;
 	IloRangeArray capa_row;
 	
 	std::vector<int> idf_row;
@@ -34,7 +31,6 @@ public:
 	
 	std::vector<int> yint;
 	
-	//problem data
 	const Data * data;
 	int nnodes;
 	int ndemands;
@@ -44,7 +40,6 @@ public:
 	
 	
 	std::vector<int> grid;
-	// construtores
 	
 	FlowY();
 	
@@ -55,9 +50,7 @@ public:
     int price(std::deque<HeapCell>& cols_to_add,const IloNumArray & pi_,const IloNumArray & alpha_ );
     void add_cols(std::deque<HeapCell>& cols_to_add);
 
-	
-	//price and cut methods
-	~FlowY();
+    ~FlowY();
 };
 
 #endif 

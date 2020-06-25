@@ -20,11 +20,9 @@ final_feas(const Data* data, const std::vector<int>& idx, const IloNumArray & xs
     const int & narcs = data->narcs;
     //sort commodities in a decreasing order cijk*(Dk - Ok)
     std::list<HeapCell> heap;
-    //std::vector<double> primal(narcs*ndemands,0.0);
     for(int k=0;k<ndemands;++k){
         if(xsol[k]>0){
             heap.push_back(HeapCell(k,xsol[k]));
-            //std::cout<<std::setprecision(15)<<"k "<<k<<" "<<xsol[k]<<" ("<<(xsol[k]/double(data->d_k[k].quantity))*100<<"%)"<<std::endl;
         }
     }
     if(heap.empty()) return 0;
@@ -41,7 +39,6 @@ final_feas(const Data* data, const std::vector<int>& idx, const IloNumArray & xs
             for (int k = 0; k < ndemands; ++k)
             if(idx[k*narcs+a]>=0){
                 uij[a] -= xsol[idx[k*narcs+a]];
-                //primal[k*narcs+a] = xsol[idx[k*narcs+a]];
             }
         }
     }
@@ -52,10 +49,8 @@ final_feas(const Data* data, const std::vector<int>& idx, const IloNumArray & xs
     while(!heap.empty()){
         dmand = heap.back().k;
         epsP =  heap.back().rc_;
-        //std::cout<<"k "<<dmand<<" "<<epsP<<std::endl;
         for (int a=0; a<narcs; ++a) {
             if(epsP <= uij[a]){
-                //wij[a]= 1e-30;
                 grid[(data->arcs[a].i-1)*nnodes+data->arcs[a].j-1]=a+1;
                 if(y_[a]==0) wij[a]=data->arcs[a].c[dmand]*epsP + data->arcs[a].f*(1-y1[a]);
                 else wij[a]=data->arcs[a].c[dmand]*epsP;
@@ -82,9 +77,7 @@ final_feas(const Data* data, const std::vector<int>& idx, const IloNumArray & xs
             
             
             if(y_[arcij]==0)y_[arcij]=-1;
-            //primal[k*narcs+arcij] += epsP;
             uij[arcij]-=epsP;
-            // if(dmand==31)std::cout<<data->arcs[arcij].i<<"-"<<data->arcs[arcij].j<<std::endl;
             if(uij[arcij]<1e-8){//arc is saturated
                 wij[arcij] = 1e30; //block
                 grid[(i-1)*nnodes+j-1]=0;
@@ -310,7 +303,6 @@ int deque_union_front(std::deque<int> & fst,const std::deque<int> & snd, int sz)
         if(ink[snd[i]]==0){
             ++cont;
             fst.push_front(snd[i]);
-            //std::cout<<"insert fst: "<<snd[i]<<std::endl;
             ink[snd[i]]=1;
         }
     }

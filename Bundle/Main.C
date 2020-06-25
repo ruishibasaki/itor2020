@@ -1,27 +1,4 @@
 /*--------------------------------------------------------------------------*/
-/*----------------------------- File Main.C --------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--                                                                      --*/
-/*-- Simple main() for testing the Bundle class using the TestFi oracle.  --*/
-/*--                                                                      --*/
-/*--                            VERSION 2.00                              --*/
-/*--                           20 - 02 - 2013                             --*/
-/*--                							  --*/
-/*-- 		     Original Idea and Implementation by:		  --*/
-/*--                							  --*/
-/*--			       Antonio Frangioni       			  --*/
-/*--                							  --*/
-/*--   			   Operations Research Group			  --*/ 
-/*--			  Dipartimento di Informatica			  --*/
-/*--   			     Universita' di Pisa			  --*/
-/*--                                                                      --*/
-/*--               Copyright 2001 - 2013 by Antonio Frangioni             --*/
-/*--                                                                      --*/
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-/*--------------------------------------------------------------------------*/
-
-/*--------------------------------------------------------------------------*/
 /*------------------------------ INCLUDES ----------------------------------*/
 /*--------------------------------------------------------------------------*/
 
@@ -84,7 +61,6 @@ double feasible_solve(const std::vector<double>& h1, std::deque<int>& firstnon0,
 int main( int argc , char **argv )
 {
     // read the command-line parameters- - - - - - - - - - - - - - - - - - - - -
-    
     if( argc < 2 ) {
         cerr << "Usage: " << argv[ 0 ] << " < instance >."
         << endl;
@@ -176,7 +152,6 @@ int main( int argc , char **argv )
         //_____________REOPTIMIZE - TRI
         
         
-        //std::cout<<"iter "<<double(s->getNumIter())<<std::endl;
         nnfxdarc=0;
         for (int a = Oracle.sznon0; a--; ){
             arc = Oracle.non0[a];
@@ -184,13 +159,11 @@ int main( int argc , char **argv )
             else if(h1[arc]>=0.001){
                 non0.push_front(arc);
                 ++nnfxdarc;
-            }//else std::cout<<"A: "<<arc<<" h1: "<<h1[arc]<<std::endl;
+            }
         }
         
         reopt(data, Oracle,s, h1,dual, non0, nnfxdarc, 0.3);
         basenon0 = Oracle.non0;
-        //std::cout<<"base size: "<<basenon0.size()<<std::endl;
-        
         
         //________________________________________________
         //________________________________________________
@@ -201,7 +174,6 @@ int main( int argc , char **argv )
             arc = basenon0[a];
             if(h1[arc]>=0.3){
                 non0.push_back(arc);
-                //std::cout<<"Fst: "<<arc<<" h1: "<<h1[arc]<<std::endl;
             }
         }
         
@@ -213,14 +185,6 @@ int main( int argc , char **argv )
         tu=0;ts=0;
         timer.Read(tu,ts);
         file<<bestfeas<<" t: "<<tu<<" ";
-        
-        
-       /* std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
-        for (int a = bstfeasnon0.size(); a--; ){
-            arc = bstfeasnon0[a];
-            std::cout<<"final: "<<arc<<" h1: "<<h1[arc]<<std::endl;
-        }
-        std::cout<<"END FIRST FEAS size:"<<bstfeasnon0.size()<<std::endl;*/
 
         //________________________________________________
         //________________________________________________
@@ -232,34 +196,27 @@ int main( int argc , char **argv )
         s->maxlb = bestfeas*100; 
         double best=bestfeas;
         for(int i=0;i<10;++i){
-            //std::cout<<"DISTURB"<<std::endl;
             double best = 1e30;
-	    tu=0;ts=0;
-	    timer.Read(tu,ts);
-	    if(tu>86400) break;
+            tu=0;ts=0;
+            timer.Read(tu,ts);
+            if(tu>86400) break;
             for(int it=2;it<=10;it+=2){
-                //std::cout<<"RATIO "<<it<<"%"<<std::endl;
                 double besti = 1e30;
                 for(int itt=0;itt<5;itt++){
-                    //std::cout<<"n "<<itt<<std::endl;
                     disturb_best(data, Oracle, s, h1, dual, bstfeasnon0, basenon0, non0, UB, it/100.0);
                     if(UB < besti){
-                        //std::cout<<"distrub 0.05: "<<UB<<std::endl;
                         besti = UB;
                         bestinon0 = non0;
                     }
                 }
-                //std::cout<<"BEST : "<<besti<<std::endl;
                 if(besti<best){ bestnon0 = bestinon0;  best =besti;}
                 if(!bestinon0.empty())candidates.push_back(bestinon0);
                 bestinon0.clear();
             }
-            //std::cout<<"CROSS inside "<<i<<std::endl;
-            
             tu=0;ts=0;
-	    timer.Read(tu,ts);
-	    if(tu>86400) break;
-	    crossover(data,Oracle, s, h1,dual, candidates, bestnon0, best, 3);
+            timer.Read(tu,ts);
+            if(tu>86400) break;
+            crossover(data,Oracle, s, h1,dual, candidates, bestnon0, best, 3);
             if(!bestnon0.empty()){
                 if(best < bestfeas){
                     UB = feasible_solve(h1, bestnon0, data, xbest);
@@ -273,24 +230,15 @@ int main( int argc , char **argv )
             for(int s=candidates.size();s--;)
                 candidates[s].clear();
             candidates.clear();
-	    tu=0;ts=0;
-	    timer.Read(tu,ts);
-	    if(tu>86400)break;
+            tu=0;ts=0;
+            timer.Read(tu,ts);
+            if(tu>86400)break;
         }
         
         tu=0;ts=0;
         timer.Read(tu,ts);
         file<<bestfeas<<" t: "<<tu<<std::endl;
-        /*std::sort(bstfeasnon0.begin(), bstfeasnon0.end());
-        for (int a = bstfeasnon0.size(); a--; ){
-            arc = bstfeasnon0[a];
-            std::cout<<"final: "<<arc<<" h1: "<<h1[arc]<<std::endl;
-        }
-        std::cout<<"END BEST size:"<<bstfeasnon0.size()<<std::endl;*/
-        
-        
-        
-        
+     
         file.close();
         dual.clear();
         h1.clear();
@@ -360,7 +308,6 @@ bool crossover(const Data & data, TestFi & Oracle, Bundle * s, const std::vector
     
     s->SetPar( NDOSolver::kMaxItr , 250);
     int sz = cand.size();
-    //makestd::cout<<"size cnad: "<<sz<<std::endl;
     double UB;
     NDOSolver::NDOStatus retval1;
     
@@ -375,23 +322,18 @@ bool crossover(const Data & data, TestFi & Oracle, Bundle * s, const std::vector
             int delta;
             
             delta = diff<int>(ya1,ya2);
-            //std::cout<<p<<" to "<<pp<<" diff: "<<delta<<std::endl;
             while(t < pow(2,delta) && (t < itmax)){
                 
                 Oracle.re_rand_fix(ya1, ya2, h1, hist);
                 Oracle.reset( 0, dual, 1);
                 retval1 = s->Solve();
                 UB = -s->ReadBestFiVal();
-                //std::cout<<"cross ub: "<<UB<<std::endl;
                 if(UB<best && (retval1!=2)){
-                    //std::cout<<"cross ub: "<<UB<<std::endl;
                     best = UB;
                     non0=Oracle.non0;
                     to_better=true;
                 }
                 ++t;
-                //std::cout<<p<<" "<<pp<<" itbest "<<itbest<<" t: "<<t<<std::endl;
-                
             }
             ya1.assign(data.narcs,0);
         }
@@ -427,7 +369,6 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
     }
     
     //Randomly choose arcs to be closed in the best solution.
-    // std::cout<<"best size: "<<bestnon0.size()<<" close "<<chngble<<std::endl;
     cont=0;
     it =0;
     while(cont<chngble && it<100){
@@ -439,7 +380,6 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
             out.push_front(bestnon0[arc]);
             ++cont;
             it=0;
-            //std::cout<<"close: "<<bestnon0[arc]<<" h1: "<<h1[bestnon0[arc]]<<std::endl;
         }
     }
     Oracle.non0.clear();
@@ -448,7 +388,6 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
     
     
     //Put the unfixed arcs from the base (do not consider the previously closed ones).
-    //std::cout<<"best size: "<<volmcnd.non0.size()<<std::endl;
     s->SetPar( NDOSolver::kMaxItr , 100);
     nnfix= Oracle.deque_concat(out, basenon0);
     Oracle.reset(nnfix, dual, 1);
@@ -458,7 +397,6 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
         arc = Oracle.non0[a];
         if(h[arc]>=0.3){
             heap.push_back(HeapCell(arc,h[arc]));
-            //std::cout<<"disturbd: "<<arc<<" h1: "<<h1[arc]<<std::endl;
         }
     }
     
@@ -470,7 +408,6 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
         arc = heap.front().k;
         Oracle.non0.push_front(arc);
         ++cont;
-        // std::cout<<"add: "<<arc<<" rc "<<heap.front().rc_<<std::endl;
         heap.pop_front();
     }
     
@@ -494,22 +431,18 @@ void disturb_best(const Data & data, TestFi & Oracle, Bundle * s, const std::vec
 
 void reopt(const Data & data, TestFi & Oracle, Bundle * s, std::vector<double>& h1, std::vector<double> &dual, std::deque<int>& non0, int nnfxdarc, double f2){
     
-    //std::cout<<"REOPT:"<<std::endl;
     s->SetPar( NDOSolver::kMaxItr , 100);
     
     int arc;
     bool mod = true;
     double f1 = 1/double(s->getNumIter());
     
-    //std::cout<<"1 iter: "<<double(s->getNumIter())<<" f1: "<<f1<<std::endl;
     Oracle.non0 = non0;
     Oracle.reset(nnfxdarc, dual,0);
     s->Solve();
     Oracle.transp_h(h1, double(s->getNumIter()),nnfxdarc);
     
     f1 = 0.01;
-    //std::cout<<"2 iter: "<<double(s->getNumIter())<<" f1: "<<f1<<" unfix: "<<nnfxdarc<<" fixed: "<<Oracle.non0.size()-nnfxdarc<<std::endl;
-    
     while(f1 <= 0.05){
         mod = false;
         nnfxdarc=0;
@@ -517,29 +450,23 @@ void reopt(const Data & data, TestFi & Oracle, Bundle * s, std::vector<double>& 
         for(int a = Oracle.szunfxd; a--; ){
             int arc = Oracle.non0[a];
             if(h1[arc]>=f2){
-                //std::cout<<"A1: "<<arc<<" h: "<<h1[arc]<<std::endl;
                 non0.push_back(arc);
                 mod = true;
             }
             else if(h1[arc]>=f1){
-                //std::cout<<"A0: "<<arc<<std::endl;
                 non0.push_front(arc);
                 ++nnfxdarc;
             }else{
-                //std::cout<<"Ot: "<<arc<<std::endl;
                 mod = true;
             }
-            //std::cout<<"Phi: "<<arc<<" h1: "<<h1[arc]<<std::endl;
         }
         if(mod==false){
             f1 +=0.01;
-            //std::cout<<"f1: "<<f1<<std::endl;
         }else{
             Oracle.insert_in_place(non0, Oracle.szunfxd);
             Oracle.reset(nnfxdarc, dual,0);
             s->Solve();
             Oracle.transp_h(h1, double(s->getNumIter()), nnfxdarc);
-            //std::cout<<"n iter: "<<double(s->getNumIter())<<" unfix: "<<nnfxdarc<<" fixed: "<<Oracle.non0.size()-nnfxdarc<<std::endl;
         }
     }
     non0.clear();
@@ -561,14 +488,12 @@ double feasible_solve(const std::vector<double>& h1, std::deque<int>& firstnon0,
         if(retval == 1) return UB;
         else return -1;
     }else if(phase==1){
-        //std::cout<<"check feas"<<std::endl;
         sol0.set_data(firstnon0, &data);
         sol0.create_model(1);
         retval = sol0.solve(UB,firstnon0, h1,x1,1);
         sol0.clear_model();
         
         if(retval==0){
-            //std::cout<<"optmisin"<<std::endl;
             sol0.set_data(firstnon0, &data);
             sol0.create_model(2);
             retval = sol0.solve(UB,firstnon0, h1,x1,2);

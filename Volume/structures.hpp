@@ -87,7 +87,6 @@ class comp{
 
 public:	
 	bool operator()(const HeapCell & x, const HeapCell & y)const{
-        //return ((x.rc_ - y.rc_)> 1e-10);
         return (x.rc_ > y.rc_);
 	}
 };
@@ -97,7 +96,7 @@ class Data{
 public:
 	std::vector<Arc1> arcs;
 	std::vector<Demand> d_k;
-	int ndemands, narcs, nnodes; // number of demands, number of arcs, number of nodes
+	int ndemands, narcs, nnodes;
 	inline ~Data(){
 		d_k.clear();
 		arcs.clear();
